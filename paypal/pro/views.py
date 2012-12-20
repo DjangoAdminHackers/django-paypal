@@ -79,7 +79,8 @@ class PayPalPro(object):
     def __init__(self, item=None, payment_form_cls=PaymentForm,
                  payment_template="pro/payment.html", confirm_form_cls=ConfirmForm, 
                  confirm_template="pro/confirm.html", success_url="?success", 
-                 fail_url=None, context=None, form_context_name="form"):
+                 fail_url=None, context=None, form_context_name="form",
+                 paymentaction=None):
         self.item = item
         self.payment_form_cls = payment_form_cls
         self.payment_template = payment_template
@@ -89,6 +90,7 @@ class PayPalPro(object):
         self.fail_url = fail_url
         self.context = context or {}
         self.form_context_name = form_context_name
+        self.paymentaction = paymentaction
 
     def __call__(self, request):
         """Return the appropriate response for the state of the transaction."""
@@ -129,12 +131,14 @@ class PayPalPro(object):
 
     def render_payment_form(self):
         """Display the DirectPayment for entering payment information."""
-        self.context[self.form_context_name] = self.payment_form_cls()
+        self.context[self.form_context_name] = self.payment_form_cls(
+            paymentaction=self.paymentaction)
         return render_to_response(self.payment_template, self.context, RequestContext(self.request))
 
     def validate_payment_form(self):
         """Try to validate and then process the DirectPayment form."""
-        form = self.payment_form_cls(self.request.POST)        
+        form = self.payment_form_cls(self.request.POST,
+            paymentaction=self.paymentaction)
         if form.is_valid():
             success = form.process(self.request, self.item)
             if success:
@@ -193,7 +197,8 @@ class PayPalPro(object):
             if self.is_recurring():
                 nvp_obj = wpp.createRecurringPaymentsProfile(self.item)
             else:
-                nvp_obj = wpp.doExpressCheckoutPayment(self.item)
+                nvp_obj = wpp.doExpressCheckoutPayment(self.item,
+                    paymentaction=self.paymentaction)
         except PayPalFailure:
             self.context['errors'] = self.errors['processing']
             return self.render_payment_form()

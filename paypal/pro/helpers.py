@@ -62,9 +62,10 @@ class PayPalWPP(object):
         self.signature_values = params
         self.signature = urlencode(self.signature_values) + "&"
 
-    def doDirectPayment(self, params):
+    def doDirectPayment(self, params, paymentaction=None):
         """Call PayPal DoDirectPayment method."""
-        defaults = {"method": "DoDirectPayment", "paymentaction": "Sale"}
+        action = paymentaction or 'sale'
+        defaults = {"method": "DoDirectPayment", "paymentaction": action}
         required = L("creditcardtype acct expdate cvv2 ipaddress firstname lastname street city state countrycode zip amt")
         nvp_obj = self._fetch(params, required, defaults)
         if nvp_obj.flag:

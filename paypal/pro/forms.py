@@ -17,6 +17,11 @@ class PaymentForm(forms.Form):
     acct = CreditCardField(label="Credit Card Number")
     expdate = CreditCardExpiryField(label="Expiration Date")
     cvv2 = CreditCardCVV2Field(label="Card Security Code")
+    
+    def __init__(self, data=None, paymentaction=False, *args, **kwargs):
+        self.paymentaction = paymentaction
+        super(PaymentForm, self).__init__(data, *args, **kwargs)
+
 
     def process(self, request, item):
         """Process a PayPal direct payment."""
@@ -27,11 +32,11 @@ class PaymentForm(forms.Form):
         params['expdate'] = self.cleaned_data['expdate'].strftime("%m%Y")
         params['ipaddress'] = request.META.get("REMOTE_ADDR", "")
         params.update(item)
-
         try:
             # Create single payment:
             if 'billingperiod' not in params:
-                nvp_obj = wpp.doDirectPayment(params)
+                nvp_obj = wpp.doDirectPayment(params,
+                    paymentaction=self.paymentaction)
             # Create recurring payment:
             else:
                 nvp_obj = wpp.createRecurringPaymentsProfile(params, direct=True)

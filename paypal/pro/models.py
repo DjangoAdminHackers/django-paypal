@@ -95,7 +95,6 @@ class PayPalNVP(Model):
         params['expdate'] = self.expdate
         params['cvv2'] = self.cvv2
         params.update(item)      
-
         # Create recurring payment:
         if 'billingperiod' in params:
             return wpp.createRecurringPaymentsProfile(params, direct=True)

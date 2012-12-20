@@ -64,7 +64,7 @@ class PayPalWPP(object):
 
     def doDirectPayment(self, params, paymentaction=None):
         """Call PayPal DoDirectPayment method."""
-        action = paymentaction or 'sale'
+        action = paymentaction or 'Sale'
         defaults = {"method": "DoDirectPayment", "paymentaction": action}
         required = L("creditcardtype acct expdate cvv2 ipaddress firstname lastname street city state countrycode zip amt")
         nvp_obj = self._fetch(params, required, defaults)
@@ -223,6 +223,8 @@ class PayPalWPP(object):
         if getattr(settings, 'PAYPAL_DEBUG', settings.DEBUG):
             print 'PayPal Request:'
             pprint.pprint(defaults)
+            pprint.pprint(pp_params)
+            print pp_string
             print '\nPayPal Response:'
             pprint.pprint(response_params)
 

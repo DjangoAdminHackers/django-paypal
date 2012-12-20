@@ -87,6 +87,7 @@ class PayPalPaymentsForm(forms.Form):
     return_url = forms.CharField(widget=ReservedValueHiddenInput(attrs={"name":"return"}))
     custom = forms.CharField(widget=ValueHiddenInput())
     invoice = forms.CharField(widget=ValueHiddenInput())
+    paymentaction = forms.CharField(widget=ValueHiddenInput())
     
     # Default fields.
     cmd = forms.ChoiceField(widget=forms.HiddenInput(), initial=CMD_CHOICES[0][0])
